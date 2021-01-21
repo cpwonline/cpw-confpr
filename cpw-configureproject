@@ -6,11 +6,11 @@ set messageError = '\n\
 Use:\
 	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn] -d directory \n\
 No mode configured. Please, type an option: \n\
-	`[-C, --clean]`						Delete generated files \n\
 	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
 	`[-b, --build]`						Execute the build system \n\
 	`[-e, --execute] app1 app2 appn`	Execute in order the passed executables \n\
 	`[-d, --dir] directory				Set the work directory \n\
+	`[-C, --clean]`						Delete generated files \n\
 '
 
 if ( $#argv == 0 ) then
