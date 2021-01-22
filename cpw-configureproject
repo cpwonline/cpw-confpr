@@ -13,121 +13,120 @@ No mode configured. Please, type an option: \n\
 	`[-C, --clean]`						Delete generated files \n\
 '
 
-if ( $#argv == 0 ) then
+if ( $#argv < 3 ) then
 	echo $messageError
 	exit 1
-else
-	# Variables
-		set configure = 0
-		set mode = ""
-		set build = 0
-		set execute = 0
-		set directory = 0
-		set workDirectory = ""
-	
-	# See parameters
-		foreach param($argv)
-			printf "\n [$param] \n"
-			switch ($param)
-				case "--clean":
-					echo "- Clean option passed"
-					rm -rf debug release mode.log exes.log
-					exit 0
-				breaksw
-				case "--configure":
-					echo "- Configure option passed"
-					@ configure = 1
-				breaksw
-				case "--build":
-					echo "- Build option passed"
-					@ build = 1
-				breaksw
-				case "--execute":
-					echo "- Execute option passed"
-					set mode = `cat mode.log`
-					if ($mode != "release" && $mode != "debug")
-						echo $messageError 1
-						exit 1
-					else
-						@ execute = 1
-					endif
-				breaksw
-				case "--dir":
-					@ directory = 1
-				breaksw
-				default:
-					if($directory) then
-						@ directory = 0
-						set workDirectory = $param
-						echo "- Work directory: " $workDirectory
-					else if ($configure) then
-						set mode = $param
-						break
-					else if ($execute) then
-						echo "hola"
-					else
-						echo $messageError 2
-						exit 1
-					endif
-				breaksw
-			endsw
-		end
-		
-	# Configure
-		if ($configure) then
-			# Save mode
-			echo $mode > mode.log
-			
-			# Configure mode
-			switch ($mode)
-				case "debug":
-					echo "Debug mode."
-					
-					# CMake configure
-					cmake -S . -B debug \
-						-DCMAKE_BUILD_TYPE=Debug \
-						-DCMAKE_CXX_FLAGS="-Wall -Wextra -g -O0"
-						
-					# Exit
-					exit 0
-				breaksw
-				case "release":
-					echo "Release mode."
-					
-					# CMake configure
-					cmake -S . -B release \
-						-DCMAKE_BUILD_TYPE=Release \
-						-DCMAKE_CXX_FLAGS="-O3"
-					
-					# Exit
-					exit 0
-				breaksw
-				default:
-					echo $messageError 4
-					exit 1
-				breaksw
-			endsw
-		endif
-		
-	# Build system
-		if ($build) then
-			# See the build mode
-			set mode = `cat mode.log`
-			
-			# Build per mode
-			switch ($mode)
-				case "release":
-					echo "Release mode. "
-					cmake --build release
-					breaksw
-				case "debug":
-					echo "Debug mode. "
-					cmake --build debug
-					breaksw
-				default:
-					echo $messageError 5
-					exit 1
-				breaksw
-			endsw
-		endif
 endif
+
+# Variables
+	set configure = 0
+	set mode = ""
+	set build = 0
+	set execute = 0
+	set directory = 0
+	set workDirectory = ""
+
+# See parameters
+	foreach param($argv)
+		switch ($param)
+			case "--clean":
+				echo "- Clean option passed"
+				rm -rf debug release mode.log exes.log
+				exit 0
+			breaksw
+			case "--configure":
+				echo "- Configure option passed"
+				@ configure = 1
+			breaksw
+			case "--build":
+				echo "- Build option passed"
+				@ build = 1
+			breaksw
+			case "--execute":
+				echo "- Execute option passed"
+				set mode = `cat mode.log`
+				if ($mode != "release" && $mode != "debug")
+					echo $messageError 1
+					exit 1
+				else
+					@ execute = 1
+				endif
+			breaksw
+			case "--dir":
+				@ directory = 1
+			breaksw
+			default:
+				if($directory) then
+					@ directory = 0
+					set workDirectory = $param
+					echo "- Work directory: " $workDirectory
+				else if ($configure) then
+					set mode = $param
+					break
+				else if ($execute) then
+					echo "hola"
+				else
+					echo $messageError 2
+					exit 1
+				endif
+			breaksw
+		endsw
+	end
+	
+# Configure
+	if ($configure) then
+		# Save mode
+		echo $mode > mode.log
+		
+		# Configure mode
+		switch ($mode)
+			case "debug":
+				echo "- Configure: Debug mode"
+				
+				# CMake configure
+				cmake -S $workDirectory -B "$workDirectory/debug" \
+					-DCMAKE_BUILD_TYPE=Debug \
+					-DCMAKE_CXX_FLAGS="-Wall -Wextra -g -O0"
+					
+				# Exit
+				exit 0
+			breaksw
+			case "release":
+				echo "- Configure: Release mode"
+				
+				# CMake configure
+				cmake -S $workDirectory -B "$workDirectory/release" \
+					-DCMAKE_BUILD_TYPE=Release \
+					-DCMAKE_CXX_FLAGS="-O3"
+				
+				# Exit
+				exit 0
+			breaksw
+			default:
+				echo $messageError 4
+				exit 1
+			breaksw
+		endsw
+	endif
+	
+# Build system
+	if ($build) then
+		# See the build mode
+		set mode = `cat mode.log`
+		
+		# Build per mode
+		switch ($mode)
+			case "debug":
+				echo "- Build: Debug mode. "
+				cmake --build "$workDirectory/debug"
+			breaksw
+			case "release":
+				echo "- Build: Release mode. "
+				cmake --build "$workDirectory/release"
+			breaksw
+			default:
+				echo $messageError 5
+				exit 1
+			breaksw
+		endsw
+	endif
