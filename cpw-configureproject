@@ -5,7 +5,7 @@
 set messageError = '\n\
 Use:\
 	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn] -d directory \n\
-No mode configured. Please, type an option: \n\
+	\n\
 	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
 	`[-b, --build]`						Execute the build system \n\
 	`[-e, --execute] app1 app2 appn`	Execute in order the passed executables \n\
@@ -24,36 +24,41 @@ endif
 	set build = 0
 	set execute = 0
 	set directory = 0
+	set gdb = 0
 	set workDirectory = ""
 
 # See parameters
 	foreach param($argv)
 		switch ($param)
-			case "--clean":
+			case "-C":
 				echo "- Clean option passed"
-				rm -rf debug release mode.log exes.log
+				rm -rf debug release mode.log
 				exit 0
 			breaksw
-			case "--configure":
+			case "-c":
 				echo "- Configure option passed"
 				@ configure = 1
 			breaksw
-			case "--build":
+			case "-b":
 				echo "- Build option passed"
 				@ build = 1
 			breaksw
-			case "--execute":
+			case "-e":
 				echo "- Execute option passed"
 				set mode = `cat mode.log`
 				if ($mode != "release" && $mode != "debug")
 					echo $messageError 1
 					exit 1
 				else
+					touch "$workDirectory/exes.log"
 					@ execute = 1
 				endif
 			breaksw
-			case "--dir":
+			case "-d":
 				@ directory = 1
+			breaksw
+			case "-gdb":
+				@ gdb = 1
 			breaksw
 			default:
 				if($directory) then
@@ -64,7 +69,7 @@ endif
 					set mode = $param
 					break
 				else if ($execute) then
-					echo "hola"
+					echo "$param " >> "$workDirectory/exes.log"
 				else
 					echo $messageError 2
 					exit 1
@@ -73,10 +78,17 @@ endif
 		endsw
 	end
 	
+# Directory
+	if($workDirectory ==  "") then
+		echo "No directory especified."
+		echo $messageError
+		exit 1
+	endif
+	
 # Configure
 	if ($configure) then
 		# Save mode
-		echo $mode > mode.log
+		echo $mode > "$workDirectory/mode.log"
 		
 		# Configure mode
 		switch ($mode)
@@ -129,4 +141,12 @@ endif
 				exit 1
 			breaksw
 		endsw
+	endif
+
+# Execute
+	if ($execute == 1) then
+		set exes = `cat $workDirectory/exes.log`
+		foreach $param($exes)
+			echo "- Executing $param"
+		end
 	endif
