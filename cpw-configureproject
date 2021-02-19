@@ -4,13 +4,14 @@
 
 set messageError = '\n\
 How to use this program:\
-	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn] -d directory \n\
+	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn, -v var1 var2 varn] -d directory \n\
 	\n\
 	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
 	`[-b, --build]`						Execute the build system \n\
 	`[-e, --execute] app1 app2 appn`	Execute in order the passed executables \n\
 	`[-d, --dir] directory				Set the work directory \n\
 	`[-C, --clean]`						Delete generated files \n\
+	`[-v, --variables]`					Pass extra variables to CMake \n\
 '
 
 if ( $#argv < 3 ) then
@@ -19,15 +20,20 @@ if ( $#argv < 3 ) then
 endif
 
 # Variables
+	# Boolean
 	set clean = 0
 	set configure = 0
-	set mode = ""
 	set build = 0
 	set execute = 0
+	set execute_conf = 0
 	set directory = 0
 	set gdb = 0
+	set vars = 0
+	# String
+	set mode = ""
 	set workDirectory = ""
 	set exes = ""
+	set variables = ""
 
 # See parameters
 	foreach param($argv)
@@ -35,46 +41,61 @@ endif
 			case "-C":
 				echo "- Clean option passed"
 				@ clean = 1
-				exit 0
+				@ execute = 0
+				@ vars = 0
 			breaksw
 			case "-c":
 				echo "- Configure option passed"
 				@ configure = 1
+				@ execute = 0
+				@ vars = 0
 			breaksw
 			case "-b":
 				echo "- Build option passed"
 				@ build = 1
+				@ execute = 0
+				@ vars = 0
 			breaksw
 			case "-e":
 				echo "- Execute option passed"
 					@ execute = 1
+					@ execute_conf = 1
+					@ vars = 0
 				endif
 			breaksw
 			case "-d":
 				@ directory = 1
+				@ execute = 0
+				@ vars = 0
 			breaksw
 			case "-gdb":
 				@ gdb = 1
+				@ execute = 0
+				@ vars = 0
+			breaksw
+			case "-v":
+				@ vars = 1
+				@ execute = 0
 			breaksw
 			default:
 				if($directory) then
 					@ directory = 0
 					set workDirectory = $param
 					echo "- Work directory: " $workDirectory
-				else if ($configure) then
-					set mode = $param
-					#break
-				else if ($execute) then
+				endif
+				if ($configure) then
+					if ($mode == "") then
+						set mode = $param
+					endif
+				endif
+				if ($execute) then
 					set exes = "$exes $param"
-				else
-					echo "\nUnknown parameter."
-					echo $messageError
-					exit 1
+				endif
+				if ($vars) then
+					set variables = "$variables $param"
 				endif
 			breaksw
-			
 		endsw
-		
 	end
 	
 # Directory
@@ -102,7 +123,7 @@ endif
 				# CMake configure
 				cmake -S $workDirectory -B "$workDirectory/debug" \
 					-DCMAKE_BUILD_TYPE=Debug \
-					-DCMAKE_CXX_FLAGS="-Wall -Wextra -g -O0"
+					-DCMAKE_CXX_FLAGS="-Wall -Wextra -g -O0" $variables
 					
 				# Exit
 				exit 0
@@ -113,7 +134,7 @@ endif
 				# CMake configure
 				cmake -S $workDirectory -B "$workDirectory/release" \
 					-DCMAKE_BUILD_TYPE=Release \
-					-DCMAKE_CXX_FLAGS="-O3"
+					-DCMAKE_CXX_FLAGS="-O3" $variables
 				
 				# Exit
 				exit 0
@@ -150,8 +171,7 @@ endif
 	endif
 
 # Execute
-	if ($execute == 1) then
-	
+	if ($execute_conf) then
 		# See the build mode
 		set mode = `cat ${workDirectory}/mode.log`
 		if($mode == "") then
