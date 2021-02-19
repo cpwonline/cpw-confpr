@@ -26,13 +26,14 @@ endif
 	set directory = 0
 	set gdb = 0
 	set workDirectory = ""
+	set exes = ""
 
 # See parameters
 	foreach param($argv)
 		switch ($param)
 			case "-C":
 				echo "- Clean option passed"
-				rm -rf debug release mode.log exes.log
+				rm -rf debug release mode.log
 				exit 0
 			breaksw
 			case "-c":
@@ -45,13 +46,6 @@ endif
 			breaksw
 			case "-e":
 				echo "- Execute option passed"
-				set mode = `cat mode.log`
-				if ($mode != "release" && $mode != "debug")
-					echo "\nNo mode founded on execute."
-					echo $messageError
-					exit 1
-				else
-					touch "$workDirectory/exes.log"
 					@ execute = 1
 				endif
 			breaksw
@@ -70,7 +64,7 @@ endif
 					set mode = $param
 					#break
 				else if ($execute) then
-					echo "$param " >> "$workDirectory/exes.log"
+					set exes = "$exes $param"
 				else
 					echo "\nUnknown parameter."
 					echo $messageError
@@ -129,7 +123,7 @@ endif
 # Build system
 	if ($build) then
 		# See the build mode
-		set mode = `cat mode.log`
+		set mode = `cat ${workDirectory}/mode.log`
 		
 		# Build per mode
 		switch ($mode)
@@ -153,7 +147,7 @@ endif
 	if ($execute == 1) then
 	
 		# See the build mode
-		set mode = `cat mode.log`
+		set mode = `cat ${workDirectory}/mode.log`
 		if($mode == "") then
 			echo "\nMode not especified on execute."
 			echo $messageError
@@ -161,7 +155,6 @@ endif
 		endif
 		
 		# Execute every parameter
-		set exes = `cat $workDirectory/exes.log`
 		foreach param($exes)
 			echo "- Executing $param"
 			#${workDirectory}/${mode}/${param}
