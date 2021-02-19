@@ -3,7 +3,7 @@
 # Init config
 
 set messageError = '\n\
-Use:\
+How to use this program:\
 	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn] -d directory \n\
 	\n\
 	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
@@ -32,7 +32,7 @@ endif
 		switch ($param)
 			case "-C":
 				echo "- Clean option passed"
-				rm -rf debug release mode.log
+				rm -rf debug release mode.log exes.log
 				exit 0
 			breaksw
 			case "-c":
@@ -47,7 +47,8 @@ endif
 				echo "- Execute option passed"
 				set mode = `cat mode.log`
 				if ($mode != "release" && $mode != "debug")
-					echo $messageError 1
+					echo "\nNo mode founded on execute."
+					echo $messageError
 					exit 1
 				else
 					touch "$workDirectory/exes.log"
@@ -67,20 +68,23 @@ endif
 					echo "- Work directory: " $workDirectory
 				else if ($configure) then
 					set mode = $param
-					break
+					#break
 				else if ($execute) then
 					echo "$param " >> "$workDirectory/exes.log"
 				else
-					echo $messageError 2
+					echo "\nUnknown parameter."
+					echo $messageError
 					exit 1
 				endif
 			breaksw
+			
 		endsw
+		
 	end
 	
 # Directory
 	if($workDirectory ==  "") then
-		echo "No directory especified."
+		echo "\nDirectory not especified."
 		echo $messageError
 		exit 1
 	endif
@@ -115,7 +119,8 @@ endif
 				exit 0
 			breaksw
 			default:
-				echo $messageError 4
+				echo "\nMode not especified on configure."
+				echo $messageError
 				exit 1
 			breaksw
 		endsw
@@ -137,7 +142,8 @@ endif
 				cmake --build "$workDirectory/release"
 			breaksw
 			default:
-				echo $messageError 5
+				echo "\nMode not especified on build."
+				echo $messageError
 				exit 1
 			breaksw
 		endsw
@@ -145,8 +151,19 @@ endif
 
 # Execute
 	if ($execute == 1) then
+	
+		# See the build mode
+		set mode = `cat mode.log`
+		if($mode == "") then
+			echo "\nMode not especified on execute."
+			echo $messageError
+			exit 1
+		endif
+		
+		# Execute every parameter
 		set exes = `cat $workDirectory/exes.log`
-		foreach $param($exes)
+		foreach param($exes)
 			echo "- Executing $param"
+			#${workDirectory}/${mode}/${param}
 		end
 	endif
