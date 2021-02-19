@@ -19,6 +19,7 @@ if ( $#argv < 3 ) then
 endif
 
 # Variables
+	set clean = 0
 	set configure = 0
 	set mode = ""
 	set build = 0
@@ -33,7 +34,7 @@ endif
 		switch ($param)
 			case "-C":
 				echo "- Clean option passed"
-				rm -rf debug release mode.log
+				@ clean = 1
 				exit 0
 			breaksw
 			case "-c":
@@ -83,6 +84,11 @@ endif
 		exit 1
 	endif
 	
+# Clean
+	if($clean) then
+		rm -rf "${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
+	endif
+
 # Configure
 	if ($configure) then
 		# Save mode
