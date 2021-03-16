@@ -3,15 +3,16 @@
 # Init config
 
 set messageError = '\n\
-How to use CPW ConfPr:\
+How to use CPW ConfPr:\n\
 	cpw-confpr [-C , -c mode, -b, -e app1 app2 appn, -v var1 var2 varn] -d directory \n\
 	\n\
-	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
-	`[-b, --build]`						Execute the build system \n\
-	`[-e, --execute] app1 app2 appn`	Execute in order the passed executables \n\
-	`[-d, --dir] directory				Set the work directory \n\
-	`[-C, --clean]`						Delete generated files \n\
-	`[-v, --variables]`					Pass extra variables to CMake \n\
+	`-c mode`					Prepare the CMake Build System. `mode` is release or debug \n\
+	`-b`						Execute the build system \n\
+	`-e app1 -arg1 -arg2 -argn`	Execute in order the passed executables \n\
+	`-d directory				Set the work directory \n\
+	`-C`						Delete generated files \n\
+	`-V`						Pass extra variables to CMake \n\
+	`-v`						Prints the CPW ConfPr version \n\
 '
 
 if ( $#argv < 3 ) then
