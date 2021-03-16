@@ -2,7 +2,7 @@
 
 # Init config
 
-set messageError = '\n\
+set errorMessage = '\n\
 How to use CPW ConfPr:\n\
 	cpw-confpr [-C , -c mode, -b, -e app1 app2 appn, -V var1 var2 varn, -v] -d directory \n\
 	\n\
@@ -117,14 +117,18 @@ alias set_mode '\
 # Directory
 	if($workDirectory ==  "") then
 		echo "\nDirectory not especified."
-		echo $messageError
+		echo $errorMessage
 		exit 1
 	endif
 
 # Clean
 	if($clean) then
-		echo "- Sentence: rm -rf ${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
-		rm -rf "${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
+		set_mode
+		
+		echo "- Sentence: rm -rf ${workDirectory}/${mode}" "${workDirectory}/mode.log"
+		time rm -rf "${workDirectory}/${mode}" "${workDirectory}/mode.log"
+		
+		exit 0
 	endif
 
 # Configure
@@ -139,53 +143,50 @@ alias set_mode '\
 				"-DCMAKE_BUILD_TYPE=${mode}" \
 				"$variables"
 				
-			cmake -S $workDirectory -B "$workDirectory/${mode}" \
+			time cmake -S $workDirectory -B "$workDirectory/${mode}" \
 				-DCMAKE_BUILD_TYPE=${mode} \
 				$variables
 				
 			exit 0
 		else
 			echo "\nMode not especified on build."
-			echo $messageError
+			echo $errorMessage
 			exit 1
 		endif
 	endif
 	
 # Build system
 	if ($build) then
-		# See the build mode
-		set mode = `cat ${workDirectory}/mode.log`
-		
+		set_mode
 		# Build
 		if("$mode" != "") then
 			echo "- Build system"
 			echo "- Sentence: cmake --build ${workDirectory}/${mode}"
-			cmake --build ${workDirectory}/${mode}
+			time cmake --build ${workDirectory}/${mode}
 			
 			exit 0
 		else
 			echo "\nMode not especified on build."
-			echo $messageError
+			echo $errorMessage
 			exit 1
 		endif
 	endif
 
 # Execute
 	if ($execute_conf) then
-		# See the build mode
-		set mode = `cat ${workDirectory}/mode.log`
+		set_mode
 		
 		if("$mode" != "") then
 			# Execute every parameter
 			echo "- Sentence: cd ${workDirectory}/${mode}/"
 			cd ${workDirectory}/${mode}/
 			echo "- Sentence: $exes"
-			${exes}
+			time ${exes}
 			
 			exit 0
 		else
 			echo "\nMode not especified on execution."
-			echo $messageError
+			echo $errorMessage
 			exit 1
 		endif
 	endif
