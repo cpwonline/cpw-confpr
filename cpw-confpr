@@ -109,7 +109,7 @@ How to use CPW ConfPr:\n\
 		echo $messageError
 		exit 1
 	endif
-	
+
 # Clean
 	if($clean) then
 		echo "- Sentence: rm -rf ${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
@@ -118,45 +118,26 @@ How to use CPW ConfPr:\n\
 
 # Configure
 	if ($configure) then
-		# Save mode
-		echo $mode > "$workDirectory/mode.log"
-		
-		# Configure mode
-		switch ($mode)
-			case "debug":
-				echo "- Configure: Debug mode"
-				echo "- Sentence: cmake -S $workDirectory -B $workDirectory/debug" \
-					"-DCMAKE_BUILD_TYPE=Debug" \
-					"-DCMAKE_CXX_FLAGS=-Wall -Wextra -g -O0 $variables"
-					
-				# CMake configure
-				cmake -S $workDirectory -B "$workDirectory/debug" \
-					-DCMAKE_BUILD_TYPE=Debug \
-					-DCMAKE_CXX_FLAGS="-Wall -Wextra -g -O0" $variables
-					
-				# Exit
-				exit 0
-			breaksw
-			case "release":
-				echo "- Configure: Release mode"
-				echo "- Sentence: cmake -S $workDirectory -B $workDirectory/release" \
-					"-DCMAKE_BUILD_TYPE=Release" \
-					"-DCMAKE_CXX_FLAGS=-O3 $variables"
-					
-				# CMake configure
-				cmake -S $workDirectory -B "$workDirectory/release" \
-					-DCMAKE_BUILD_TYPE=Release \
-					-DCMAKE_CXX_FLAGS="-O3" $variables
+		if("$mode" != "") then
+			# Save mode
+			echo $mode > "$workDirectory/mode.log"
+			
+			# CMake configure
+			echo "- Configure: $mode mode"
+			echo "- Sentence: cmake -S $workDirectory -B $workDirectory/${mode}" \
+				"-DCMAKE_BUILD_TYPE=${mode}" \
+				"$variables"
 				
-				# Exit
-				exit 0
-			breaksw
-			default:
-				echo "\nMode not especified on configure."
-				echo $messageError
-				exit 1
-			breaksw
-		endsw
+			cmake -S $workDirectory -B "$workDirectory/${mode}" \
+				-DCMAKE_BUILD_TYPE=${mode} \
+				$variables
+				
+			exit 0
+		else
+			echo "\nMode not especified on build."
+			echo $messageError
+			exit 1
+		endif
 	endif
 	
 # Build system
