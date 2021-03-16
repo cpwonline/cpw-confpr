@@ -23,7 +23,6 @@ How to use CPW ConfPr:\n\
 	set execute = 0
 	set execute_conf = 0
 	set directory = 0
-	set gdb = 0
 	set vars = 0
 	# String
 	set void = ""
@@ -67,8 +66,6 @@ How to use CPW ConfPr:\n\
 				@ execute = 0
 				@ vars = 0
 			breaksw
-			case "-gdb":
-				@ gdb = 1
 				@ execute = 0
 				@ vars = 0
 			breaksw
