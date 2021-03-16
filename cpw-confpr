@@ -4,7 +4,7 @@
 
 set messageError = '\n\
 How to use CPW ConfPr:\n\
-	cpw-confpr [-C , -c mode, -b, -e app1 app2 appn, -v var1 var2 varn] -d directory \n\
+	cpw-confpr [-C , -c mode, -b, -e app1 app2 appn, -V var1 var2 varn, -v] -d directory \n\
 	\n\
 	`-c mode`					Prepare the CMake Build System. `mode` is release or debug \n\
 	`-b`						Execute the build system \n\
