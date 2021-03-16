@@ -24,6 +24,7 @@ How to use CPW ConfPr:\n\
 	set execute_conf = 0
 	set directory = 0
 	set vars = 0
+	set version = 0
 	# String
 	set void = ""
 	set mode = ""
@@ -67,11 +68,11 @@ How to use CPW ConfPr:\n\
 				@ vars = 0
 			breaksw
 				@ execute = 0
-				@ vars = 0
 			breaksw
 			case "-v":
-				@ vars = 1
+				@ version = 1
 				@ execute = 0
+				@ vars = 0
 			breaksw
 			default:
 				if($directory) then
@@ -94,6 +95,12 @@ How to use CPW ConfPr:\n\
 		endsw
 	end
 	
+# Version
+	if($version) then
+		echo "0.0.1-Alpha"
+		exit 0
+	endif
+
 # Directory
 	if($workDirectory ==  "") then
 		echo "\nDirectory not especified."
