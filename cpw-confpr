@@ -67,6 +67,8 @@ How to use CPW ConfPr:\n\
 				@ execute = 0
 				@ vars = 0
 			breaksw
+			case "-V":
+				@ vars = 1
 				@ execute = 0
 			breaksw
 			case "-v":
