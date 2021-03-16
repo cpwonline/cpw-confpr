@@ -163,15 +163,18 @@ How to use CPW ConfPr:\n\
 	if ($execute_conf) then
 		# See the build mode
 		set mode = `cat ${workDirectory}/mode.log`
-		if($mode == "") then
-			echo "\nMode not especified on execute."
+		
+		if("$mode" != "") then
+			# Execute every parameter
+			echo "- Sentence: cd ${workDirectory}/${mode}/"
+			cd ${workDirectory}/${mode}/
+			echo "- Sentence: $exes"
+			${exes}
+			
+			exit 0
+		else
+			echo "\nMode not especified on execution."
 			echo $messageError
 			exit 1
 		endif
-		
-		# Execute every parameter
-		echo "- Sentence: cd ${workDirectory}/${mode}/"
-		cd ${workDirectory}/${mode}/
-		echo "- Sentence: $exes"
-		${exes}
 	endif
