@@ -15,11 +15,6 @@ How to use CPW ConfPr:\n\
 	`-v`						Prints the CPW ConfPr version \n\
 '
 
-if ( $#argv < 3 ) then
-	echo $messageError
-	exit 1
-endif
-
 # Variables
 	# Boolean
 	set clean = 0
