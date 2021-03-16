@@ -145,24 +145,18 @@ How to use CPW ConfPr:\n\
 		# See the build mode
 		set mode = `cat ${workDirectory}/mode.log`
 		
-		# Build per mode
-		switch ($mode)
-			case "debug":
-				echo "- Build: Debug mode. "
-				echo "- Sentence: cmake --build $workDirectory/debug"
-				cmake --build "$workDirectory/debug"
-			breaksw
-			case "release":
-				echo "- Build: Release mode. "
-				echo "- Sentence: cmake --build $workDirectory/release"
-				cmake --build "$workDirectory/release"
-			breaksw
-			default:
-				echo "\nMode not especified on build."
-				echo $messageError
-				exit 1
-			breaksw
-		endsw
+		# Build
+		if("$mode" != "") then
+			echo "- Build system"
+			echo "- Sentence: cmake --build ${workDirectory}/${mode}"
+			cmake --build ${workDirectory}/${mode}
+			
+			exit 0
+		else
+			echo "\nMode not especified on build."
+			echo $messageError
+			exit 1
+		endif
 	endif
 
 # Execute
