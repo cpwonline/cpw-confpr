@@ -3,8 +3,8 @@
 # Init config
 
 set messageError = '\n\
-How to use this program:\
-	cpw-configureproject [-C , -c mode, -b, -e app1 app2 appn, -v var1 var2 varn] -d directory \n\
+How to use CPW ConfPr:\
+	cpw-confpr [-C , -c mode, -b, -e app1 app2 appn, -v var1 var2 varn] -d directory \n\
 	\n\
 	`[-c, --configure] mode`			Prepare the CMake Build System. `mode` is release or debug \n\
 	`[-b, --build]`						Execute the build system \n\
@@ -30,6 +30,7 @@ endif
 	set gdb = 0
 	set vars = 0
 	# String
+	set void = ""
 	set mode = ""
 	set workDirectory = ""
 	set exes = ""
@@ -58,10 +59,12 @@ endif
 			breaksw
 			case "-e":
 				echo "- Execute option passed"
-					@ execute = 1
-					@ execute_conf = 1
-					@ vars = 0
+				if ( "$exes" != "$void" ) then
+					set exes = "$exes ; "
 				endif
+				@ execute = 1
+				@ execute_conf = 1
+				@ vars = 0
 			breaksw
 			case "-d":
 				@ directory = 1
@@ -107,6 +110,7 @@ endif
 	
 # Clean
 	if($clean) then
+		echo "- Sentence: rm -rf ${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
 		rm -rf "${workDirectory}/debug" "${workDirectory}/release" "${workDirectory}/mode.log"
 	endif
 
@@ -119,7 +123,10 @@ endif
 		switch ($mode)
 			case "debug":
 				echo "- Configure: Debug mode"
-				
+				echo "- Sentence: cmake -S $workDirectory -B $workDirectory/debug" \
+					"-DCMAKE_BUILD_TYPE=Debug" \
+					"-DCMAKE_CXX_FLAGS=-Wall -Wextra -g -O0 $variables"
+					
 				# CMake configure
 				cmake -S $workDirectory -B "$workDirectory/debug" \
 					-DCMAKE_BUILD_TYPE=Debug \
@@ -130,7 +137,10 @@ endif
 			breaksw
 			case "release":
 				echo "- Configure: Release mode"
-				
+				echo "- Sentence: cmake -S $workDirectory -B $workDirectory/release" \
+					"-DCMAKE_BUILD_TYPE=Release" \
+					"-DCMAKE_CXX_FLAGS=-O3 $variables"
+					
 				# CMake configure
 				cmake -S $workDirectory -B "$workDirectory/release" \
 					-DCMAKE_BUILD_TYPE=Release \
@@ -156,10 +166,12 @@ endif
 		switch ($mode)
 			case "debug":
 				echo "- Build: Debug mode. "
+				echo "- Sentence: cmake --build $workDirectory/debug"
 				cmake --build "$workDirectory/debug"
 			breaksw
 			case "release":
 				echo "- Build: Release mode. "
+				echo "- Sentence: cmake --build $workDirectory/release"
 				cmake --build "$workDirectory/release"
 			breaksw
 			default:
@@ -181,8 +193,8 @@ endif
 		endif
 		
 		# Execute every parameter
-		foreach param($exes)
-			echo "- Executing $param"
-			#${workDirectory}/${mode}/${param}
-		end
+		echo "- Sentence: cd ${workDirectory}/${mode}/"
+		cd ${workDirectory}/${mode}/
+		echo "- Sentence: $exes"
+		${exes}
 	endif
