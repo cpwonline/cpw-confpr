@@ -31,6 +31,17 @@ How to use CPW ConfPr:\n\
 	set workDirectory = ""
 	set exes = ""
 	set variables = ""
+	
+alias set_mode '\
+		# See the build mode \
+		if(-e ${workDirectory}/mode.log) then \
+			set mode = `cat ${workDirectory}/mode.log` \
+		else \
+			echo "\nMode not especified on build." \
+			echo $errorMessage \
+			exit 1 \
+		endif \
+'
 
 # See parameters
 	foreach param($argv)
