@@ -143,11 +143,9 @@ alias set_mode '\
 				"-DCMAKE_BUILD_TYPE=${mode}" \
 				"$variables"
 				
-			time cmake -S $workDirectory -B "$workDirectory/${mode}" \
+			(time cmake -S $workDirectory -B "$workDirectory/${mode}" \
 				-DCMAKE_BUILD_TYPE=${mode} \
-				$variables
-				
-			exit 0
+				$variables && exit 0) || exit 1
 		else
 			echo "\nMode not especified on build."
 			echo $errorMessage
@@ -162,9 +160,7 @@ alias set_mode '\
 		if("$mode" != "") then
 			echo "- Build system"
 			echo "- Sentence: cmake --build ${workDirectory}/${mode}"
-			time cmake --build ${workDirectory}/${mode}
-			
-			exit 0
+			(time cmake --build ${workDirectory}/${mode} && exit 0) || exit 1
 		else
 			echo "\nMode not especified on build."
 			echo $errorMessage
@@ -182,8 +178,6 @@ alias set_mode '\
 			cd ${workDirectory}/${mode}/
 			echo "- Sentence: $exes"
 			time ${exes}
-			
-			exit 0
 		else
 			echo "\nMode not especified on execution."
 			echo $errorMessage
